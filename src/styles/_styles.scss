@@ -1,0 +1,59 @@
+@font-face {
+  font-family: "Bryant Pro";
+  src: url("./assets/fonts/BryantPro-Medium.otf");
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: "Bryant Pro";
+  src: url("./assets/fonts/BryantPro-Bold.otf");
+  font-weight: bold;
+}
+
+@font-face {
+  font-family: "Bryant Pro";
+  src: url("./assets/fonts/BryantPro-Light.otf");
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: "Bryant Pro";
+  src: url("./assets/fonts/BryantPro-Regular.otf");
+  font-weight: 400;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  box-sizing: border-box;
+}
+
+$primaryBlack: "#3E2D16";
+$primaryWhite: "#3E2D16";
+$secondaryWhite: "#FFF7F7";
+$secondaryColor: "#D7BEA3";
+$primaryColor: "#C09C71";
+$primaryColorDark: "#8B6845";
+$primaryColorDarker: "#3E2D16";
+
+body {
+  background-color: #FFF7F7;
+  font-family: "Bryant Pro", Verdana, Tahoma, sans-serif;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: bold;
+  padding: 1rem 0;
+  text-transform: uppercase;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+}

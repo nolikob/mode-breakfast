@@ -1,0 +1,68 @@
+.Footer {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    padding: 1rem;
+    padding-top: 0;
+    background-color: #8B6845;
+    color: white;
+    box-shadow: 0 -5px 10px 5px rgba(#8B6845, .25);
+
+    .contactInfo {
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-bottom: 1rem;
+        font-size: 20px;
+
+        & > span {
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            margin-bottom: 10px;
+            flex-basis: 50%;
+
+            span {
+                font-size: 16px;
+            }
+
+            .icon {
+                margin-bottom: 10px;
+            }
+        }
+    }
+}
+
+@media screen and (min-width: 768px) {
+    .Footer {
+        padding: 2rem;
+
+        .contactInfo {
+            flex-direction: row;
+            justify-content: center;
+            align-items: flex-start;
+
+            > span {
+                flex-basis: auto;
+                padding: 2rem;
+                width: 25%;
+
+                > span {
+                    padding-top: .25rem;
+                }
+            }
+        }
+    }
+}
+
+@media screen and (min-width: 992px) {
+    .Footer {
+        .contactInfo {
+            > span {
+                width: 15%;
+            }
+        }
+    }
+}

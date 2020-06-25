@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Café Modi</title>
+  <meta name="description" content="Kavárna Modi, sídlem na Karlově náměstí je to pro Vás otevřena denně.">
+  <meta name="robots" content="index, nofollow" />
+  <!-- <link rel='stylesheet' type="text/css" href='https://unpkg.com/v-calendar/lib/v-calendar.min.css'> -->
+  <link rel="stylesheet" type="text/css" href="./dist/styles.css" />
+  <script type="text/javascript" src="https://api.mapy.cz/loader.js"></script>
+  <script type="text/javascript">Loader.load(null, {suggest: true});</script>
+</head>
+
+<body>
+  <nav class="Navigation">
+    <div class="Navigation-logo">
+      <img src="./dist/assets/images/logo.png" alt="CAFE MODI - Logo" />
+    </div>
+    <div class="Navigation-name">
+      CAFE MODI
+    </div>
+    <span class="Navigation-button">
+      <span class="line" id="top"></span>
+      <span class="line" id="middle"></span>
+      <span class="line" id="bottom"></span>
+    </span>
+    <ul class="Navigation-menuWrapper hidden">
+      <li class="menuItem active">
+        <a href="#home">Úvod</a>
+      </li>
+      <li class="menuItem">
+        <a href="#food">Snídaně</a>
+      </li>
+      <li class="menuItem">
+        <a href="#about">O nás</a>
+      </li>
+    </ul>
+  </nav>
+  <header class="Header" id="home">
+    <div class="Slideshow">
+      <div class="Slideshow-item fade" style="background-image: url('./dist/assets/images/slideshow/1.jpg')"></div>
+      <div class="Slideshow-item fade" style="background-image: url('./dist/assets/images/slideshow/2.jpg')"></div>
+      <div class="Slideshow-item fade" style="background-image: url('./dist/assets/images/slideshow/3.jpg')"></div>
+      <div class="Slideshow-item fade" style="background-image: url('./dist/assets/images/slideshow/4.jpg')"></div>
+
+      <div class="Slideshow-navigation">
+        <button type="button" onclick="slide(-1)">
+          <i class="fa fa-chevron-left"></i>
+        </button>
+        <button type="button" onclick="slide(1)">
+          <i class="fa fa-chevron-right"></i>
+        </button>
+      </div>
+
+      <div class="Slideshow-dotContainer">
+        <span class="Slideshow-dot" onclick="setSlide(0)"></span>
+        <span class="Slideshow-dot" onclick="setSlide(1)"></span>
+        <span class="Slideshow-dot" onclick="setSlide(2)"></span>
+        <span class="Slideshow-dot" onclick="setSlide(3)"></span>
+      </div>
+    </div>
+  </header>
+  <main>
+    <section class="Breakfast" id="food">
+      <h2 class="headline">Snídaně s sebou</h2>
+      <div class="content" id="app">
+        <ul class="Breakfast-wrapper">
+          <li class="Breakfast-itemWrapper" v-for="item in menu" :key="item.id">
+            <div class="Breakfast-item">
+              <div class="imageWrapper" :style="'backgroundImage:url('+item.image+')'">
+              </div>
+              <span class="name">${ item.name }</span>
+              <p class="description" v-if="item.description">${ item.description }</p>
+              <div class="bottom">
+                <span class="price">${ item.price }&nbsp;Kč</span>
+                <div class="amountWrapper">
+                  <button :disabled="ordered[item.id] === 0" @click="removeItem(item.id)">
+                    <i class="fa fa-minus"></i>
+                  </button>
+                  <span class="amount">
+                    ${ ordered[item.id] }
+                  </span>
+                  <button @click="addItem(item.id)">
+                    <i class="fa fa-plus"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </li>
+        </ul>
+        <div class="Breakfast-conclusion">
+          <div class="sum">
+            <span class="name">Celkem</span>
+            <span class="price">${ sum }&nbsp;Kč</span>
+          </div>
+          <button v-show="sum > 0 && showMore" class="Breakfast-showMore" @click="showMore = !showMore">
+            <i class="fa fa-angle-up"></i>
+            Skrýt
+          </button>
+          <button v-show="sum > 0 && !showMore" class="Breakfast-showMore" @click="showMore = !showMore">
+            <i class="fa fa-angle-down"></i>
+            Zobrazit detail objednávky
+          </button>
+          <ul class="list" :class="{ uncollapsed: showMore }">
+            <li class="item" v-if="item[1] > 0" v-for="item in conclusion">
+              <span class="name">${ item[0] }</span>
+              <span class="price">${ item[1] }&nbsp;Kč</span>
+            </li>
+          </ul>
+          <form class="form" method="POST" name="Order" @submit.prevent="onSubmit">
+            <div class="input-wrapper">
+              <label for="delivaryDate">Datum dodání (na další den možno objednat do 18h)</label>
+              <v-date-picker mode="single" v-model="date" :update-on-input="false" :min-date="minDate"
+                  :input-props="{
+                  class: 'w-full shadow appearance-none input',
+                  readonly: true
+                }" />
+            </div>
+            <div class="input-wrapper">
+              <label for="billingFirstName">Jméno</label>
+              <input required class="input" name="billingFirstName" type="text" v-model="billingInformation.firstName">
+            </div>
+            <div class="input-wrapper">
+              <label for="billingLastName">Příjmení</label>
+              <input required class="input" name="billingLastName" type="text" v-model="billingInformation.lastName">
+            </div>
+            <div class="input-wrapper">
+              <label for="companyName">Název společnosti</label>
+              <input required class="input" name="companyName" type="text" v-model="billingInformation.companyName">
+            </div>
+            <div class="input-wrapper">
+              <label for="companyAddress">Fakturační adresa</label>
+              <input required class="input" name="companyAddress" type="text" id="companyAddress"
+                v-model="billingInformation.companyAddress">
+            </div>
+            <div class="input-wrapper">
+              <label for="ico">IČO</label>
+              <input required class="input" name="ico" type="text" v-model="billingInformation.ico">
+            </div>
+            <div class="input-wrapper">
+              <label for="dic">DIČ</label>
+              <input required class="input" name="dic" type="text" v-model="billingInformation.dic">
+            </div>
+            <div class="input-wrapper">
+              <label for="billingEmail">Email</label>
+              <input required class="input" name="billingEmail" placeholder="jan.novak@priklad.cz" type="email"
+                v-model="billingInformation.email">
+            </div>
+            <div class="input-wrapper">
+              <label for="billingPhone">Telefon</label>
+              <input required class="input" name="billingPhone" pattern="(\+420|\+421)?[ ]?([0-9]{3}[ ]?){3}"
+                placeholder="Telefon - +420xxx" type="tel" v-model="billingInformation.phone">
+            </div>
+            <div class="differentBilling">
+              <input type="checkbox" name="differentDelivery" v-model="differentDelivery">
+              <label for="differentDelivery">Jiná dodací adresa?</label>
+            </div>
+            <div v-if="differentDelivery" class="deliveryInformation">
+              <div class="input-wrapper">
+                <label for="deliveryFirstName">Jméno</label>
+                <input required class="input" name="deliveryFirstName" type="text"
+                  v-model="deliveryInformation.deliveryFirstName">
+              </div>
+              <div class="input-wrapper">
+                <label for="deliveryLastName">Příjmení</label>
+                <input required class="input" name="deliveryLastName" type="text"
+                  v-model="deliveryInformation.deliveryLastName">
+              </div>
+              <div class="input-wrapper">
+                <label for="address">Adresa doručení</label>
+                <input required class="input" name="address" type="text" id="address"
+                  v-model="deliveryInformation.deliveryAddress">
+              </div>
+              <div class="input-wrapper">
+                <label for="email">Email</label>
+                <input required class="input" name="email" placeholder="jan.novak@priklad.cz" type="email"
+                  v-model="deliveryInformation.deliveryEmail">
+              </div>
+              <div class="input-wrapper">
+                <label for="phone">Telefon</label>
+                <input required class="input" name="phone" pattern="(\+420|\+421)?[ ]?([0-9]{3}[ ]?){3}"
+                  placeholder="Telefon - +420xxx" type="tel" v-model="deliveryInformation.deliveryPhone">
+              </div>
+            </div>
+            <button :disabled="sum <= 0" class="submit" type="submit">Odeslat</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section class="About" id="about">
+      <div class="About-textWrapper">
+        <h2 class="headline">O nás</h2>
+        <p class="content">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+          Maecenas at elit ac magna dictum porttitor. Sed quis erat
+          a ipsum gravida finibus ac non elit. Nulla finibus dolor
+          orci, non mollis nunc pretium et. Suspendisse imperdiet
+          tellus quis aliquam lobortis. Cras luctus rhoncus orci,
+          at suscipit massa gravida in. Donec maximus sapien aliquet
+          nulla porta, molestie feugiat dui suscipit. Curabitur
+          lacinia ultrices justo, ut mollis massa interdum ut.
+          Vivamus ac elit vel sem ornare ultrices ut vestibulum ante.
+          Sed fringilla aliquam leo, id eleifend magna ornare sit amet.
+          <br />
+          <br />
+          Morbi ac tincidunt ipsum. Phasellus quis ullamcorper dui. Nulla facilisi. Vivamus sollicitudin risus et
+          feugiat accumsan. Suspendisse potenti. Sed tincidunt nibh eget suscipit feugiat. Nulla facilisi. Proin sed
+          dolor lorem. Praesent dignissim id arcu ut sollicitudin. Suspendisse sed velit faucibus, blandit arcu at,
+          tincidunt tortor. Integer ac est tortor.
+        </p>
+      </div>
+      <div class="About-imageWrapper">
+        <div class="image" style="background-image: url('./dist/assets/images/about-full.jpg')"></div>
+      </div>
+    </section>
+  </main>
+  <footer class="Footer">
+    <h4>Kontakt</h4>
+    <div class="contactInfo">
+      <span>
+        <span class="icon fa fa-envelope"></span>
+        <span>example@example.cz</span>
+      </span>
+      <span>
+        <span class="icon fa fa-phone"></span>
+        <span>+420 603 177 106</span>
+      </span>
+      <span>
+        <span class="icon fas fa-map-marker-alt"></span>
+        <span>Myslíkova&nbsp;284/32
+          Praha,&nbsp;120&nbsp;00</span>
+      </span>
+    </div>
+    <span class="copyright">
+      Copyright &copy;
+    </span>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/all.min.js"></script>
+  <script src='https://unpkg.com/v-calendar'></script>
+  <script type="text/javascript" src="https://api.mapy.cz/loader.js"></script>
+  <script type="text/javascript">Loader.load(null, { suggest: true });</script>
+  <script src="./dist/scripts.js"></script>
+</body>
+
+</html>
